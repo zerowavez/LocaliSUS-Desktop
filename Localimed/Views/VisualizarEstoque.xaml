@@ -1,10 +1,11 @@
+<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"  
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:modelView="clr-namespace:Localimed.ModelView"
              x:Class="Localimed.Views.VisualizarEstoque"  
              Title="Estoque de Medicamentos"
              Shell.NavBarIsVisible="False">
-    
-    
+    <!-- T�TULO -->
     <VerticalStackLayout Padding="10" BackgroundColor="White">
         <Label Text="Estoque de Medicamentos"
                FontAttributes="Bold"
@@ -12,19 +13,47 @@
                HorizontalOptions="Center"
                TextColor="Black"
                Margin="0,10" />
-        
-
-        <BoxView Color="Gray" HeightRequest="200" HorizontalOptions="Fill" />
-
+        <!-- CAIXA CINZA DA LISTA-->
+        <Frame BackgroundColor="Gray" HeightRequest="200" Padding="10" CornerRadius="8">
+            <CollectionView ItemsSource="{Binding EstoqueList}"
+                            SelectedItem="{Binding SelectedEstoque, Mode=TwoWay}"
+                            SelectionMode="Single">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="modelView:EstoqueModel">
+                        <!-- SELE��O DE MEDICAMENTO -->
+                        <StackLayout Orientation="Horizontal" Padding="5">
+                            <VisualStateManager.VisualStateGroups>
+                                <VisualStateGroup Name="CommonStates">
+                                    <VisualState Name="Normal">
+                                        <VisualState.Setters>
+                                            <Setter Property="BackgroundColor" Value="Gray"/>
+                                        </VisualState.Setters>
+                                    </VisualState>
+                                    <VisualState Name="Selected">
+                                        <VisualState.Setters>
+                                            <Setter Property="BackgroundColor" Value="#B4C9FF"/>
+                                        </VisualState.Setters>
+                                    </VisualState>
+                                </VisualStateGroup>
+                            </VisualStateManager.VisualStateGroups>
+                            <!-- MEDICAMENTO NOVO -->
+                            <Label Text="{Binding Nome}" TextColor="White"/>
+                            <Label Text="{Binding Quantidade}" TextColor="White" Margin="10,0,0,0"/>
+                        </StackLayout>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </Frame>
+        <!-- BOT�ES DE ADCIONAR E REMOVER -->
         <HorizontalStackLayout HorizontalOptions="Center" Margin="0,20">
             <Button Text="Remover Medicamentos" BackgroundColor="Gray"
-                    TextColor="White" 
-                    Margin="0,0,10,0"
-                    Command="{Binding BotaoRemoverMedicamentos}"/>
+                    TextColor="White" Margin="0,0,10,0"
+                    Command="{Binding BotaoRemoverMedicamento}"
+                    IsEnabled="{Binding SelectedEstoque, Converter={StaticResource NullToBoolConverter}}"/>
             <Button Text="Adicionar Medicamentos" 
                     BackgroundColor="#041A3F" 
-                    TextColor="White"
+                    TextColor="White" 
                     Command="{Binding BotaoInserirMedicamentos}"/>
         </HorizontalStackLayout>
     </VerticalStackLayout>
-</ContentPage> 
+</ContentPage>

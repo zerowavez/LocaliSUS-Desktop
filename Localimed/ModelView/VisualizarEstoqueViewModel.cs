@@ -1,49 +1,70 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Input;
-using Localimed.Views;
+using Localimed.Model;
+using Microsoft.Maui.Controls;
 
 namespace Localimed.ModelView
 {
     public class VisualizarEstoqueViewModel : INotifyPropertyChanged
     {
+        public ObservableCollection<EstoqueModel> EstoqueList { get; set; } = new ObservableCollection<EstoqueModel>();
 
+        private EstoqueModel selectedEstoque;
+        public EstoqueModel SelectedEstoque
+        {
+            get => selectedEstoque;
+            set
+            {
+                if (selectedEstoque != value)
+                {
+                    selectedEstoque = value;
+                    OnPropertyChanged(nameof(SelectedEstoque));
+                    ((Command)BotaoRemoverMedicamento).ChangeCanExecute();
+                }
+            }
+        }
 
-        /*
-        ========================================
-            LÓGICA PARA OS BOTÕES
-        ========================================
-        */
         public ICommand BotaoInserirMedicamentos { get; }
         public ICommand BotaoRemoverMedicamento { get; }
-        public ICommand BotaoVisualizarEstoque { get; }
+
         public VisualizarEstoqueViewModel()
         {
             BotaoInserirMedicamentos = new Command(OnBotaoInserirMedicamentosClicked);
-            BotaoRemoverMedicamento = new Command(OnBotaoRemoverMedicamentosClicked);
-          
+            BotaoRemoverMedicamento = new Command(OnBotaoRemoverMedicamentosClicked, CanRemoverMedicamento);
 
+            //MEDICAMENTO EXEMPLO
+            EstoqueList.Add(new EstoqueModel { Quantidade = 10, Nome = "Ibuprofeno", ExigeTermo = false });
         }
 
-        public async void OnBotaoInserirMedicamentosClicked()
+        private void OnBotaoInserirMedicamentosClicked()
         {
-            await Application.Current.MainPage.Navigation.PushAsync(new Views.InserirMedicamentos());
+            EstoqueList.Add(new EstoqueModel { Nome = "Novo Medicamento", Quantidade = 1, ExigeTermo = false });
         }
 
-        public async void OnBotaoRemoverMedicamentosClicked()
+        private void OnBotaoRemoverMedicamentosClicked()
         {
-            await Application.Current.MainPage.Navigation.PushAsync(new Views.RemoverMedicamentos());
+            if (SelectedEstoque != null)
+            {
+                EstoqueList.Remove(SelectedEstoque);
+                SelectedEstoque = null;
+            }
         }
 
+        private bool CanRemoverMedicamento()
+        {
+            return SelectedEstoque != null;
+        }
 
-
-        //Permitindo que INotifyPropertyChanged seja utilizado no projeto
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged(string propertyName)
             => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
+
+    public class EstoqueModel
+    {
+        public string Nome { get; set; }
+        public int Quantidade { get; set; }
+        public bool ExigeTermo { get; set; }
     }
 }
